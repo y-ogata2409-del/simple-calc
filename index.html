@@ -154,15 +154,44 @@
     }
 
     function calculate() {
+      if (currentFormulaInternal === "" || shouldReset) return;
+      
       try {
-        let result = new Function('return ' + currentFormulaInternal)();
-        formulaDisplay.innerText = isMagicActive ? "." : ""; // マジック中はドットを維持
-        currentFormulaInternal = String(result);
-        currentFormulaVisual = String(result);
+        let result;
+        
+        // 【マジック仕掛け】isMagicActiveがtrueなら、結果を強制的に1にする
+        if (isMagicActive) {
+          result = 1;
+        } else {
+          result = new Function('return ' + currentFormulaInternal)();
+        }
+
+        if (!isFinite(result)) {
+          formulaDisplay.innerText = formatExpression(currentFormulaVisual);
+          formulaDisplay.style.opacity = "1";
+          mainDisplay.innerText = "未定義";
+          currentFormulaInternal = "";
+          currentFormulaVisual = "";
+          shouldReset = true;
+          clearBtn.innerHTML = 'AC';
+          adjustFontSize();
+          return;
+        }
+
+        // マジック中は目印のドットだけ残す
+        formulaDisplay.innerText = isMagicActive ? "." : formatExpression(currentFormulaVisual);
+        formulaDisplay.style.opacity = "1";
+        
+        let resultStr = Number(result.toPrecision(14)).toString();
+        
+        currentFormulaInternal = resultStr;
+        currentFormulaVisual = resultStr;
         shouldReset = true;
         clearBtn.innerHTML = 'AC';
-        updateView(String(result));
-      } catch (e) { mainDisplay.innerText = "Error"; }
+        updateView(resultStr);
+      } catch (e) {
+        mainDisplay.innerText = "Error";
+      }
     }
 
     function handleClear() {
