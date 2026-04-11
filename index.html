@@ -29,9 +29,19 @@
     #main-display { 
       font-size: 94px; text-align: right; border: none; 
       background: transparent; color: white; width: 100%;
-      outline: none; font-weight: 300; pointer-events: none;
-      white-space: nowrap; transition: font-size 0.05s;
-      display: flex; justify-content: flex-end; overflow: hidden;
+      outline: none; font-weight: 300;
+      
+      /* --- ここから修正 --- */
+      white-space: nowrap;     /* 改行させない */
+      display: block;          /* スクロールを有効にするためにblockに変更 */
+      overflow-x: auto;        /* 横方向にはみ出たらスクロール可能（見切れる状態）にする */
+      overflow-y: hidden;      /* 縦方向は隠す */
+      transition: font-size 0.1s;
+      /* --- ここまで --- */
+    }
+    /* スクロールバーを非表示にする（見た目をスッキリさせる） */
+    #main-display::-webkit-scrollbar {
+      display: none;
     }
 
     .buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
@@ -207,17 +217,16 @@
 
     function adjustFontSize() {
       const text = mainDisplay.innerText;
+      
+      // 指数表示(e)の時だけはみ出しすぎるので少し小さく、それ以外は常に70px
       if (text.includes('e')) {
         mainDisplay.style.fontSize = '40px';
-        return;
+      } else {
+        mainDisplay.style.fontSize = '70px'; /* ここで固定！ */
       }
-      const len = text.length;
-      if (len > 14) mainDisplay.style.fontSize = '30px';
-      else if (len > 11) mainDisplay.style.fontSize = '40px';
-      else if (len > 8) mainDisplay.style.fontSize = '55px';
-      else if (len > 7) mainDisplay.style.fontSize = '70px';
-      else if (len > 6) mainDisplay.style.fontSize = '85px';
-      else mainDisplay.style.fontSize = '94px';
+
+      // 数字が増えたら常に右端（最新の数字）が見えるようにスクロールさせる
+      mainDisplay.scrollLeft = mainDisplay.scrollWidth;
     }
 
     function updateView(text) {
