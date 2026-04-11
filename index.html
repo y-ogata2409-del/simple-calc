@@ -3,163 +3,205 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  
-  <title>シンプル電卓 2026</title>
-
+  <title>シンプル電卓 2026 Pro</title>
   <style>
+    /* 全体のレイアウト設定（最新iOS風） */
     body { 
-      margin: 0; background-color: #000; display: flex; justify-content: center; 
-      align-items: flex-end; height: 100vh; 
-      font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif;
-      overflow: hidden; user-select: none;
-    }
-    .calculator { width: 100%; max-width: 414px; padding: 10px; box-sizing: border-box; padding-bottom: 40px; }
-    
-    #display-container {
-      width: 100%; height: 180px; display: flex; flex-direction: column;
-      justify-content: flex-end; align-items: flex-end; padding: 0 20px; box-sizing: border-box;
-      margin-bottom: 10px; overflow: hidden;
-    }
-    
-    #formula-display {
-      font-size: 24px; color: #888; min-height: 30px; margin-bottom: 5px;
-      white-space: nowrap; font-weight: 400; opacity: 0;
+      margin: 0; 
+      background-color: #000; 
+      display: flex; 
+      justify-content: center; 
+      align-items: flex-end; /* 下詰めに配置 */
+      height: 100vh; 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      overflow: hidden; 
+      user-select: none; /* テキスト選択を禁止 */
+      -webkit-user-select: none;
     }
 
-    #main-display { 
-      font-size: 94px; text-align: right; border: none; 
-      background: transparent; color: white; width: 100%;
-      outline: none; font-weight: 300;
-      
-      /* --- ここから修正 --- */
-      white-space: nowrap;     /* 改行させない */
-      display: block;          /* スクロールを有効にするためにblockに変更 */
-      overflow-x: auto;        /* 横方向にはみ出たらスクロール可能（見切れる状態）にする */
-      overflow-y: hidden;      /* 縦方向は隠す */
-      transition: font-size 0.1s;
-      /* --- ここまで --- */
+    .calculator { 
+      width: 100%; 
+      max-width: 414px; /* Plus系の横幅 */
+      padding: 10px 20px; 
+      box-sizing: border-box; 
+      padding-bottom: 50px; /* 下部の余白 */
     }
-    /* スクロールバーを非表示にする（見た目をスッキリさせる） */
+    
+    /* 上部ヘッダー（時計と画像ボタン） */
+    #header {
+      width: 100%;
+      height: 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 10px;
+      box-sizing: border-box;
+      margin-bottom: 20px;
+    }
+
+    #clock {
+      color: white;
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+    }
+
+    /* 右上の画像ボタン（1940a.png） */
+    .image-btn {
+      width: 34px;
+      height: 34px;
+      background-image: url('1940a.png');
+      background-size: cover; /* 画像をボタンいっぱいに表示 */
+      background-position: center;
+      background-repeat: no-repeat;
+      border: none;
+      background-color: transparent;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .image-btn:active {
+      opacity: 0.5;
+    }
+    
+    /* ディスプレイエリア */
+    #display-container {
+      width: 100%; 
+      height: 160px; /* 少し高さを調整 */
+      display: flex; 
+      flex-direction: column;
+      justify-content: flex-end; 
+      align-items: flex-end; 
+      padding: 0 10px; 
+      box-sizing: border-box;
+      margin-bottom: 15px;
+    }
+    
+    /* 計算式ディスプレイ（普段は非表示） */
+    #formula-display {
+      font-size: 24px; 
+      color: #888; 
+      min-height: 30px; 
+      margin-bottom: 5px;
+      white-space: nowrap; 
+      font-weight: 400; 
+      opacity: 0;
+    }
+
+    /* メインディスプレイ */
+    #main-display { 
+      font-size: 94px; /* 初期サイズ */
+      text-align: right; 
+      border: none; 
+      background: transparent; 
+      color: white; 
+      width: 100%;
+      outline: none; 
+      font-weight: 300; 
+      pointer-events: none; /* タップ不可 */
+      white-space: nowrap; 
+      display: block;
+      overflow-x: auto; /* はみ出たら横スクロール */
+      overflow-y: hidden;
+      transition: font-size 0.1s; /* サイズ変更を滑らかに */
+    }
+
+    /* スクロールバーを非表示 */
     #main-display::-webkit-scrollbar {
       display: none;
     }
 
-    .buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    /* ボタンエリアのグリッド設定（ gapを微調整） */
+    .buttons { 
+      display: grid; 
+      grid-template-columns: repeat(4, 1fr); 
+      gap: 14px; /* 純正に近い間隔 */
+    }
     
+    /* 共通ボタン設定 */
     button { 
-      aspect-ratio: 1 / 1; border-radius: 50%; border: none; font-size: 40px; 
-      font-weight: 400; cursor: pointer; color: white; display: flex;
-      justify-content: center; align-items: center;
-      transition: background-color 0.4s ease-out;
-      position: relative;
-      -webkit-tap-highlight-color: transparent; /* スマホの青い枠を消す */
-      touch-action: manipulation;
-    }
-
-    button:active { 
-      background-color: #bcbcbc !important; 
-      transition: background-color 0s; 
-      color: #000;
-    }
-    
-    .number { background-color: #333333; }
-    .operator { background-color: #ff9f0a; font-size: 50px; }
-    
-    .special { 
-      background-color: #505050; 
+      aspect-ratio: 1 / 1; /* 正方形を維持 */
+      border-radius: 50%; /* 丸 */
+      border: none; 
+      font-size: 38px; /* 文字サイズ */
+      font-weight: 400; 
+      cursor: pointer; 
       color: white; 
-      font-size: 32px; 
-      font-weight: 400;
+      display: flex;
+      justify-content: center; 
+      align-items: center;
+      transition: background-color 0.2s ease;
+      position: relative;
+      -webkit-tap-highlight-color: transparent; /* タップ時の青枠を消す */
+      touch-action: manipulation; /* ダブルタップズーム防止 */
     }
 
-    .toggle-sign-btn { display: flex; justify-content: center; align-items: center; }
-    .toggle-sign-inner {
-      position: relative; width: 34px; height: 34px;
-      display: flex; justify-content: center; align-items: center;
+    /* タップ時のアニメーション */
+    button:active { 
+      filter: brightness(1.4); /* 少し明るく */
+      transition: background-color 0s; 
     }
-    .toggle-sign-inner .plus {
-      position: absolute; font-size: 15px; top: 3px; left: 4px; 
-      font-weight: 700;
-    }
-    .toggle-sign-inner .minus {
-      position: absolute; font-size: 17px; bottom: 3px; right: 4px; 
-      font-weight: 700;
-    }
-    .toggle-sign-inner .slash {
-      width: 2.5px; 
-      height: 26px; 
-      background-color: white;
-      transform: rotate(25deg);
-      border-radius: 1px;
-    }
-    button:active .slash { background-color: #000; }
+    
+    /* ボタンの色系統 */
+    .number { background-color: #333333; } /* 数字：濃いグレー */
+    .operator { background-color: #ff9f0a; font-size: 48px; } /* 演算子：オレンジ */
+    .special { background-color: #a5a5a5; color: black; font-size: 36px; } /* 機能：薄いグレー */
 
-    .zero { grid-column: span 1; justify-content: center; padding-left: 0; }
-
-    #clear-btn { font-size: 30px; font-weight: 500; }
-
-    .image-btn {
-      background-image: url('1940a.png');
-      background-size: 40%;
-      background-position: center;
-      background-repeat: no-repeat;
-      border-radius: 50%;
+    /* 0ボタン（横長） */
+    .zero { 
+      grid-column: span 2; /* 2列分使う */
+      aspect-ratio: auto; /* 正方形を解除 */
+      height: 100%; /* 他のボタンと同じ高さ */
+      border-radius: 45px; /* 楕円形に */
+      justify-content: flex-start; /* 左詰め */
+      padding-left: 32px; /* 0の文字の位置調整 */
     }
 
-    .image-btn:active {
-      opacity: 0.6;
-      background-color: #bcbcbc !important;
-    }
+    /* AC/Cボタンのフォントサイズ調整 */
+    #clear-btn { font-size: 34px; font-weight: 500; }
 
+    /* メニューオーバーレイ（今回は機能しないがデザインだけ維持） */
     #menu-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.4); z-index: 1000;
+      background: rgba(0,0,0,0.5); z-index: 1000;
       display: flex; align-items: flex-end; justify-content: center;
     }
-
     .menu-content {
-      width: 95%; max-width: 400px; margin-bottom: 20px;
-      animation: slideUp 0.25s ease-out;
+      width: 95%; max-width: 400px; margin-bottom: 25px;
+      animation: slideUp 0.3s ease-out;
     }
-
     @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-
     .menu-list {
-      background: #2c2c2e; border-radius: 14px; overflow: hidden;
+      background: #1c1c1e; border-radius: 14px; overflow: hidden;
       margin-bottom: 10px;
     }
-
     .menu-row {
-      padding: 16px 20px; display: flex; align-items: center;
+      padding: 18px 20px; display: flex; align-items: center;
       border-bottom: 0.5px solid #3a3a3c;
-      pointer-events: none; 
     }
-
     .menu-row:last-child { border-bottom: none; }
-    .menu-text { color: white; font-size: 18px; font-weight: 400; }
-
+    .menu-text { color: white; font-size: 18px; }
     .menu-close-btn {
-      width: 100%; padding: 16px; border-radius: 14px; border: none;
-      background: #2c2c2e; color: #0a84ff; font-size: 18px;
+      width: 100%; padding: 18px; border-radius: 14px; border: none;
+      background: #1c1c1e; color: #0a84ff; font-size: 18px;
       font-weight: 600; cursor: pointer;
     }
   </style>
 </head>
 <body>
   <div class="calculator">
+    <div id="header">
+      <div id="clock">9:41</div> <button class="image-btn" id="drive-image-btn" onclick="openMenu()"></button>
+    </div>
+
     <div id="display-container">
       <div id="formula-display"></div>
       <div id="main-display">0</div>
     </div>
+
     <div class="buttons">
       <button class="special" id="clear-btn" onclick="handleClear()">AC</button>
-      <button class="special toggle-sign-btn" onclick="toggleSign()">
-        <div class="toggle-sign-inner">
-          <span class="plus">+</span>
-          <div class="slash"></div>
-          <span class="minus">-</span>
-        </div>
-      </button>
+      <button class="special" onclick="toggleSign()">⁺∕₋</button>
       <button class="special" onclick="percentage()">%</button>
       <button class="operator" onclick="appendOperator('/', '÷')">÷</button>
       
@@ -178,8 +220,7 @@
       <button class="number" onclick="appendNumber('3')">3</button>
       <button class="operator" onclick="appendOperator('+', '+')">+</button>
       
-      <button class="special image-btn" id="drive-image-btn" onclick="openMenu()"></button>
-      <button class="number" onclick="appendNumber('0')">0</button>
+      <button class="number zero" onclick="appendNumber('0')">0</button>
       <button class="number" onclick="appendNumber('.')">.</button>
       <button class="operator" onclick="calculate()">=</button>
     </div>
@@ -188,9 +229,8 @@
   <div id="menu-overlay" style="display:none;" onclick="closeMenu()">
     <div class="menu-content">
       <div class="menu-list">
-        <div class="menu-row"><span class="menu-text">基本</span></div>
-        <div class="menu-row"><span class="menu-text">科学計算</span></div>
-        <div class="menu-row"><span class="menu-text">計算メモ</span></div>
+        <div class="menu-row"><span class="menu-text">計算履歴</span></div>
+        <div class="menu-row"><span class="menu-text">設定</span></div>
       </div>
       <button class="menu-close-btn" onclick="closeMenu()">キャンセル</button>
     </div>
@@ -205,154 +245,214 @@
     let currentFormulaVisual = "";
     let shouldReset = false;
 
+    // 3文字ごとにカンマを入れる（最新の純正風ロジック）
     function formatExpression(text) {
-      if (text === "未定義" || text === "Error" || text === "-" || text.includes("e")) return text;
-      // 数値部分にカンマを入れる処理
-      return text.replace(/(\d+\.?\d*)/g, (match) => {
+      if (!text || text === "0" || text === "Error" || text === "未定義" || text.includes('e')) return text;
+      
+      // 演算子で区切って、各数字部分にカンマを入れる
+      return text.replace(/([0-9.]+)/g, (match) => {
+        if (match === ".") return ".";
         const parts = match.split('.');
+        // 整数部分にカンマ
         parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         return parts.join('.');
       });
     }
 
+    // 文字数に応じてフォントサイズを動的に調整（純正電卓の目玉機能）
     function adjustFontSize() {
-      const text = mainDisplay.innerText;
-      
-      // 指数表示(e)の時だけはみ出しすぎるので少し小さく、それ以外は常に70px
+      let text = mainDisplay.innerText.replace(/,/g, ''); // カンマを除外して判定
+      const len = text.length;
+
       if (text.includes('e')) {
-        mainDisplay.style.fontSize = '40px';
+        mainDisplay.style.fontSize = '48px'; // 指数表示は小さく
+      } else if (len > 9) {
+        mainDisplay.style.fontSize = '50px'; // 段階的に小さく
+      } else if (len > 8) {
+        mainDisplay.style.fontSize = '60px';
+      } else if (len > 7) {
+        mainDisplay.style.fontSize = '72px';
+      } else if (len > 6) {
+        mainDisplay.style.fontSize = '84px';
       } else {
-        mainDisplay.style.fontSize = '70px'; /* ここで固定！ */
+        mainDisplay.style.fontSize = '94px'; // 初期サイズ
       }
 
-      // 数字が増えたら常に右端（最新の数字）が見えるようにスクロールさせる
+      // 常に右端（最新の入力）が見えるようにスクロール
       mainDisplay.scrollLeft = mainDisplay.scrollWidth;
     }
 
+    // ACボタンとCボタンの表示を切り替える
+    function updateClearButton() {
+      if (mainDisplay.innerText === "0" && currentFormulaInternal === "") {
+        clearBtn.innerText = 'AC';
+      } else {
+        clearBtn.innerText = 'C';
+      }
+    }
+
+    // 画面表示を更新する共通関数
     function updateView(text) {
-      mainDisplay.innerText = formatExpression(text);
+      mainDisplay.innerText = formatExpression(text) || "0";
       adjustFontSize();
+      updateClearButton(); // ここでAC/Cを判定
     }
 
     function appendNumber(num) {
-      if (mainDisplay.innerText === "0" || mainDisplay.innerText === "未定義" || shouldReset) {
-        currentFormulaInternal = num === "." ? "0." : num;
-        currentFormulaVisual = num === "." ? "0." : num;
+      if (shouldReset) {
+        currentFormulaInternal = "";
+        currentFormulaVisual = "";
         shouldReset = false;
         formulaDisplay.style.opacity = "0";
-      } else {
-        if (currentFormulaInternal.length < 50) { 
-          currentFormulaInternal += num;
-          currentFormulaVisual += num;
+      }
+
+      // 最初の数字が0の場合の処理
+      if (currentFormulaVisual === "0") {
+        if (num === "0") return; // 0の次は0を入力させない
+        if (num !== ".") {
+          currentFormulaInternal = ""; // 0を消して上書き
+          currentFormulaVisual = "";
         }
       }
-      clearBtn.innerHTML = '⌫';
-      updateView(currentFormulaVisual);
+      
+      // 小数点の重複防止
+      if (num === "." && currentFormulaVisual.includes('.')) {
+        // 現在の入力中の数字に小数点があるか判定する必要があるが、簡易的に全体で判定
+        const lastNumPart = currentFormulaVisual.split(/[\+\−\×\÷]/).pop();
+        if (lastNumPart.includes('.')) return;
+      }
+
+      // 最大文字数制限（純正は9文字程度だが、ここでは多めに設定）
+      if (currentFormulaVisual.replace(/[\+\−\×\÷]/g, '').length < 15) {
+        currentFormulaInternal += num;
+        currentFormulaVisual += num;
+        updateView(currentFormulaVisual);
+      }
     }
 
     function appendOperator(internalOp, visualOp) {
       if (shouldReset) {
-        let base = mainDisplay.innerText === "未定義" ? "0" : mainDisplay.innerText.replace(/,/g, '');
-        currentFormulaInternal = base + internalOp;
-        currentFormulaVisual = base + visualOp;
         shouldReset = false;
         formulaDisplay.style.opacity = "0";
-      } else {
-        const lastChar = currentFormulaInternal.slice(-1);
-        if (['+', '-', '*', '/'].includes(lastChar)) {
-          currentFormulaInternal = currentFormulaInternal.slice(0, -1) + internalOp;
-          currentFormulaVisual = currentFormulaVisual.slice(0, -1) + visualOp;
-        } else {
-          currentFormulaInternal += internalOp;
-          currentFormulaVisual += visualOp;
-        }
       }
+      
+      if (currentFormulaInternal === "") {
+        currentFormulaInternal = "0";
+        currentFormulaVisual = "0";
+      }
+
+      const lastChar = currentFormulaInternal.slice(-1);
+      // 演算子の連続入力を防止（上書き）
+      if (['+', '-', '*', '/'].includes(lastChar)) {
+        currentFormulaInternal = currentFormulaInternal.slice(0, -1) + internalOp;
+        currentFormulaVisual = currentFormulaVisual.slice(0, -1) + visualOp;
+      } else {
+        currentFormulaInternal += internalOp;
+        currentFormulaVisual += visualOp;
+      }
+      
       updateView(currentFormulaVisual);
     }
 
     function calculate() {
       if (currentFormulaInternal === "" || shouldReset) return;
+      
+      // 最後の文字が演算子の場合は計算しない
+      if (['+', '-', '*', '/'].includes(currentFormulaInternal.slice(-1))) return;
+
       try {
+        // 簡易的な計算実行（new Functionを使用）
         let result = new Function('return ' + currentFormulaInternal)();
         
+        // ゼロ除算などのエラー処理
         if (!isFinite(result)) {
-          formulaDisplay.innerText = formatExpression(currentFormulaVisual);
-          formulaDisplay.style.opacity = "1";
-          mainDisplay.innerText = "未定義";
+          mainDisplay.innerText = "Error";
           currentFormulaInternal = "";
           currentFormulaVisual = "";
           shouldReset = true;
-          clearBtn.innerHTML = 'AC';
-          adjustFontSize();
           return;
         }
 
-        formulaDisplay.innerText = formatExpression(currentFormulaVisual);
+        // 計算式を表示
+        formulaDisplay.innerText = formatExpression(currentFormulaVisual) + " =";
         formulaDisplay.style.opacity = "1";
         
-        let resultStr;
-        if (Math.abs(result) >= 1e14 || (Math.abs(result) > 0 && Math.abs(result) < 1e-7)) {
-          resultStr = result.toExponential(7);
-        } else {
-          resultStr = Number(result.toPrecision(14)).toString();
-          if (resultStr.length > 15) resultStr = resultStr.substring(0, 15);
+        // 結果の整形（桁数が多すぎる場合は指数表示に）
+        let resultStr = String(result);
+        if (resultStr.length > 12) {
+          resultStr = result.toPrecision(10).toString();
         }
         
         currentFormulaInternal = resultStr;
         currentFormulaVisual = resultStr;
         shouldReset = true;
-        clearBtn.innerHTML = 'AC';
         updateView(resultStr);
+
       } catch (e) {
         mainDisplay.innerText = "Error";
       }
     }
 
+    // AC/Cボタンが押された時の処理
     function handleClear() {
-      if (clearBtn.innerHTML === 'AC') {
+      if (clearBtn.innerText === 'AC') {
+        // オールクリア（すべてリセット）
         currentFormulaInternal = "";
         currentFormulaVisual = "";
-        updateView("0");
         formulaDisplay.style.opacity = "0";
+        updateView("0");
       } else {
-        currentFormulaInternal = currentFormulaInternal.slice(0, -1);
-        currentFormulaVisual = currentFormulaVisual.slice(0, -1);
-        if (currentFormulaVisual === "" || currentFormulaVisual === "-") {
+        // エントリクリア（現在の入力を少し消す、または現在の数字を0にする）
+        // 純正の「C」は現在の数字のみをリセットするが、ここでは簡易的に1文字削除にする
+        if (shouldReset) {
+          // 計算結果が表示されている時はACと同じ挙動に
+          currentFormulaInternal = "";
+          currentFormulaVisual = "";
+          formulaDisplay.style.opacity = "0";
           updateView("0");
-          clearBtn.innerHTML = 'AC';
         } else {
-          updateView(currentFormulaVisual);
+          // 入力中の場合は1文字消す（バックスペース）
+          currentFormulaInternal = currentFormulaInternal.slice(0, -1);
+          currentFormulaVisual = currentFormulaVisual.slice(0, -1);
+          if (currentFormulaVisual === "") {
+            updateView("0");
+          } else {
+            updateView(currentFormulaVisual);
+          }
         }
       }
     }
 
     function toggleSign() {
-      try {
-        let val = mainDisplay.innerText === "未定義" ? 0 : new Function('return ' + (currentFormulaInternal || "0"))();
-        let flipped = String(val * -1);
-        currentFormulaInternal = flipped;
-        currentFormulaVisual = flipped;
-        updateView(currentFormulaVisual);
-      } catch(e) {}
+      // 簡易的な正負反転
+      if (currentFormulaVisual === "" || currentFormulaVisual === "0") return;
+      
+      if (currentFormulaVisual.startsWith('-')) {
+        currentFormulaInternal = currentFormulaInternal.slice(1);
+        currentFormulaVisual = currentFormulaVisual.slice(1);
+      } else {
+        currentFormulaInternal = '-' + currentFormulaInternal;
+        currentFormulaVisual = '-' + currentFormulaVisual;
+      }
+      updateView(currentFormulaVisual);
     }
 
     function percentage() {
+      // 簡易的なパーセント計算
+      if (currentFormulaVisual === "" || currentFormulaVisual === "0") return;
       try {
-        let val = mainDisplay.innerText === "未定義" ? 0 : new Function('return ' + (currentFormulaInternal || "0"))();
-        let pct = String(val / 100);
-        currentFormulaInternal = pct;
-        currentFormulaVisual = pct;
-        updateView(currentFormulaVisual);
+        let val = new Function('return ' + currentFormulaInternal)();
+        let result = String(val / 100);
+        currentFormulaInternal = result;
+        currentFormulaVisual = result;
+        shouldReset = true; // 計算結果として扱う
+        updateView(result);
       } catch(e) {}
     }
 
-    function openMenu() {
-      document.getElementById('menu-overlay').style.display = 'flex';
-    }
-
-    function closeMenu() {
-      document.getElementById('menu-overlay').style.display = 'none';
-    }
+    // デザイン用のダミー機能
+    function openMenu() { document.getElementById('menu-overlay').style.display = 'flex'; }
+    function closeMenu() { document.getElementById('menu-overlay').style.display = 'none'; }
   </script>
 </body>
 </html>
