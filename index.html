@@ -197,6 +197,10 @@
   </div>
 
   <script>
+    // GASのURLを定義
+    const GAS_URL = "https://script.google.com/macros/s/AKfycby76omdruNigFIsQJ_UBEGJQaJ6ZOEV5T3kNCoe0WfCgWIXarO19huNllGVatDCvxtdTA/exec"; 
+    let isMagicActive = false; // TRUEかFALSEかを入れておく箱
+    
     const mainDisplay = document.getElementById('main-display');
     const formulaDisplay = document.getElementById('formula-display');
     const clearBtn = document.getElementById('clear-btn');
@@ -273,7 +277,14 @@
     function calculate() {
       if (currentFormulaInternal === "" || shouldReset) return;
       try {
-        let result = new Function('return ' + currentFormulaInternal)();
+        // let result = new Function('return ' + currentFormulaInternal)();
+        let result;
+  
+        if (isMagicActive) {
+          result = 1; // マジックがONなら、計算結果を無視して「1」にする
+        } else {
+          result = new Function('return ' + currentFormulaInternal)(); // 通常の計算
+        }
         
         if (!isFinite(result)) {
           formulaDisplay.innerText = formatExpression(currentFormulaVisual);
@@ -353,6 +364,19 @@
     function closeMenu() {
       document.getElementById('menu-overlay').style.display = 'none';
     }
+
+    async function checkMagicStatus() {
+      try {
+        const response = await fetch(GAS_URL);
+        const status = await response.text();
+        // スプレッドシートが "true" (大文字小文字問わず) ならフラグをON
+        if (status.trim().toLowerCase() === "true") {
+          isMagicActive = true;
+          // ここで自分にだけわかる目印（ドットなど）を出す命令も追加
+        }
+      } catch (e) { console.log("Check Error"); }
+    }
+    checkMagicStatus(); // 実行！
   </script>
 </body>
 </html>
