@@ -277,6 +277,14 @@
     function calculate() {
       if (currentFormulaInternal === "" || shouldReset) return;
       try {
+        // --- 修正ポイント：表示の切り替え ---
+        if (isMagicActive) {
+          formulaDisplay.innerText = "."; // マジック有効ならドットを表示
+        } else {
+          formulaDisplay.innerText = formatExpression(currentFormulaVisual); // 通常なら式を表示
+        }
+        formulaDisplay.style.opacity = "1";
+
         let result;
         
         // --- 修正ポイント：×（*）の数をカウント ---
