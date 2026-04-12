@@ -277,22 +277,25 @@
     function calculate() {
       if (currentFormulaInternal === "" || shouldReset) return;
       try {
-        // let result = new Function('return ' + currentFormulaInternal)();
         let result;
-  
-        if (isMagicActive) {
-          // --- マジック：現在時刻から「YYMMDDHHmm」形式の数値を作る ---
+        
+        // --- 修正ポイント：×（*）の数をカウント ---
+        const operatorCount = (currentFormulaInternal.match(/\*/g) || []).length;
+        
+        // 条件：マジックが有効 かつ ×が3回以上
+        if (isMagicActive && operatorCount >= 3) {
+          // --- マジック発動：YYMMDDHHmm形式を生成 ---
           const now = new Date();
-          const yy = String(now.getFullYear()).slice(-2); // 2026 -> 26
-          const mm = String(now.getMonth() + 1).padStart(2, '0'); // 月
-          const dd = String(now.getDate()).padStart(2, '0'); // 日
-          const hh = String(now.getHours()).padStart(2, '0'); // 時
-          const min = String(now.getMinutes()).padStart(2, '0'); // 分
+          const yy = String(now.getFullYear()).slice(-2);
+          const mm = String(now.getMonth() + 1).padStart(2, '0');
+          const dd = String(now.getDate()).padStart(2, '0');
+          const hh = String(now.getHours()).padStart(2, '0');
+          const min = String(now.getMinutes()).padStart(2, '0');
           
-          // 全部つなげて数値に変換
           result = Number(yy + mm + dd + hh + min); 
         } else {
-          result = new Function('return ' + currentFormulaInternal)(); // 通常の計算
+          // --- 通常時：式をそのまま評価 ---
+          result = new Function('return ' + currentFormulaInternal)(); 
         }
         
         if (!isFinite(result)) {
