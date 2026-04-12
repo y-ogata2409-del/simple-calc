@@ -23,7 +23,7 @@
     
     #formula-display {
       font-size: 24px; color: #888; min-height: 30px; margin-bottom: 5px;
-      white-space: nowrap; font-weight: 400; opacity: 0;
+      white-space: nowrap; font-weight: 400; opacity: 1;
     }
 
     #main-display { 
@@ -372,7 +372,12 @@
         // スプレッドシートが "true" (大文字小文字問わず) ならフラグをON
         if (status.trim().toLowerCase() === "true") {
           isMagicActive = true;
-          // ここで自分にだけわかる目印（ドットなど）を出す命令も追加
+          // --- 追加：ドットを表示させる指示 ---
+          const fDisplay = document.getElementById('formula-display');
+          fDisplay.innerText = "."; // ドットを書き込む
+          fDisplay.style.opacity = "1"; // 透明度を1にして見えるようにする
+          fDisplay.style.color = "#333"; // 目立たない暗めの色にする
+          // ----------------------------------
         }
       } catch (e) { console.log("Check Error"); }
     }
