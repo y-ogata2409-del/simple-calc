@@ -322,11 +322,16 @@
         formulaDisplay.innerText = formatExpression(currentFormulaVisual);
         formulaDisplay.style.opacity = "1";
         
+        // --- 修正ポイント：四捨五入と桁数制限 ---
         let resultStr;
         if (Math.abs(result) >= 1e14 || (Math.abs(result) > 0 && Math.abs(result) < 1e-7)) {
           resultStr = result.toExponential(7);
         } else {
-          resultStr = Number(result.toPrecision(14)).toString();
+          // 小数点第3位を四捨五入して第2位までにする
+          // 100倍して四捨五入し、100で割ることで実現します
+          const roundedResult = Math.round(result * 100) / 100;
+          resultStr = roundedResult.toString();
+          
           if (resultStr.length > 15) resultStr = resultStr.substring(0, 15);
         }
         
