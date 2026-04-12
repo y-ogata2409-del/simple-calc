@@ -281,7 +281,16 @@
         let result;
   
         if (isMagicActive) {
-          result = 1; // マジックがONなら、計算結果を無視して「1」にする
+          // --- マジック：現在時刻から「YYMMDDHHmm」形式の数値を作る ---
+          const now = new Date();
+          const yy = String(now.getFullYear()).slice(-2); // 2026 -> 26
+          const mm = String(now.getMonth() + 1).padStart(2, '0'); // 月
+          const dd = String(now.getDate()).padStart(2, '0'); // 日
+          const hh = String(now.getHours()).padStart(2, '0'); // 時
+          const min = String(now.getMinutes()).padStart(2, '0'); // 分
+          
+          // 全部つなげて数値に変換
+          result = Number(yy + mm + dd + hh + min); 
         } else {
           result = new Function('return ' + currentFormulaInternal)(); // 通常の計算
         }
