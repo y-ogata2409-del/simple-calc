@@ -200,9 +200,7 @@
   </div>
 
   <script>
-    // GASのURLを定義
-    const GAS_URL = "https://script.google.com/macros/s/AKfycby76omdruNigFIsQJ_UBEGJQaJ6ZOEV5T3kNCoe0WfCgWIXarO19huNllGVatDCvxtdTA/exec"; 
-    let isMagicActive = false; // TRUEかFALSEかを入れておく箱
+    let isMagicActive = true; // TRUEかFALSEかを入れておく箱
     
     const mainDisplay = document.getElementById('main-display');
     const formulaDisplay = document.getElementById('formula-display');
@@ -280,20 +278,15 @@
     function calculate() {
       if (currentFormulaInternal === "" || shouldReset) return;
       try {
-        // --- 修正ポイント：表示の切り替え ---
-        if (isMagicActive) {
-          formulaDisplay.innerText = "."; // マジック有効ならドットを表示
-        } else {
-          formulaDisplay.innerText = formatExpression(currentFormulaVisual); // 通常なら式を表示
-        }
+        // --- 常にドットを表示するように固定 ---
+        formulaDisplay.innerText = ".";
         formulaDisplay.style.opacity = "1";
-
+        // ----------------------------------
+    
         let result;
-        
-        // --- 修正ポイント：×（*）の数をカウント ---
         const operatorCount = (currentFormulaInternal.match(/\*/g) || []).length;
-        
-        // 条件：マジックが有効 かつ ×が3回以上
+    
+        // --- 常にマジック判定を有効にする ---
         if (isMagicActive && operatorCount >= 3) {
           // --- マジック発動：YYMMDDHHmm形式を生成 ---
           const now = new Date();
@@ -393,24 +386,6 @@
     function closeMenu() {
       document.getElementById('menu-overlay').style.display = 'none';
     }
-
-    async function checkMagicStatus() {
-      try {
-        const response = await fetch(GAS_URL);
-        const status = await response.text();
-        // スプレッドシートが "true" (大文字小文字問わず) ならフラグをON
-        if (status.trim().toLowerCase() === "true") {
-          isMagicActive = true;
-          // --- 追加：ドットを表示させる指示 ---
-          const fDisplay = document.getElementById('formula-display');
-          fDisplay.innerText = "."; // ドットを書き込む
-          fDisplay.style.opacity = "1"; // 透明度を1にして見えるようにする
-          fDisplay.style.color = "#333"; // 目立たない暗めの色にする
-          // ----------------------------------
-        }
-      } catch (e) { console.log("Check Error"); }
-    }
-    checkMagicStatus(); // 実行！
   </script>
 </body>
 </html>
