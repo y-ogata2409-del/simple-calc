@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no",viewport-fit=cover">
   <link rel="apple-touch-icon" href="icon4.png">
   
   <title>電卓</title>
@@ -10,13 +10,29 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   
   <style>
+    /* Safe Area変数を定義 */
+    :root {
+      --sat: env(safe-area-inset-top, 0px);
+      --sar: env(safe-area-inset-right, 0px);
+      --sab: env(safe-area-inset-bottom, 0px);
+      --sal: env(safe-area-inset-left, 0px);
+    }
     body { 
       margin: 0; background-color: #000; display: flex; justify-content: center; 
       align-items: flex-end; height: 100vh; 
       font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif;
       overflow: hidden; user-select: none;
+      min-height: -webkit-fill-available;
     }
-    .calculator { width: 100%; max-width: 414px; padding: 10px; box-sizing: border-box; padding-bottom: 40px; }
+    .calculator {
+      width: 100%;
+      /* 左右のSafe Areaを内側のpaddingとして確保 */
+      padding-left: calc(10px + var(--sal));
+      padding-right: calc(10px + var(--sar));
+      /* 下のSafe Area（ホームインジケーター）を確保 */
+      padding-bottom: calc(20px + var(--sab));
+      padding-top: 10px;
+    }
     
     #display-container {
       width: 100%; height: 180px; display: flex; flex-direction: column;
@@ -149,7 +165,7 @@
   </style>
 </head>
 <body>
-  <div class="calculator">
+  <div class="ulator">
     <div id="display-container">
       <div id="formula-display"></div>
       <div id="main-display">0</div>
@@ -184,7 +200,7 @@
       <button class="special image-btn" id="drive-image-btn" onclick="openMenu()"></button>
       <button class="number" onclick="appendNumber('0')">0</button>
       <button class="number" onclick="appendNumber('.')">.</button>
-      <button class="operator" onclick="calculate()">=</button>
+      <button class="operator" onclick="ulate()">=</button>
     </div>
   </div>
 
@@ -225,9 +241,9 @@
       
       // 指数表示(e)の時だけはみ出しすぎるので少し小さく、それ以外は常に70px
       if (text.includes('e')) {
-        mainDisplay.style.fontSize = '40px';
+        mainDisplay.style.fontSize = '30px';
       } else {
-        mainDisplay.style.fontSize = '50px'; /* ここで固定！ */
+        mainDisplay.style.fontSize = '40px'; /* ここで固定！ */
       }
 
       // 数字が増えたら常に右端（最新の数字）が見えるようにスクロールさせる
@@ -275,7 +291,7 @@
       updateView(currentFormulaVisual);
     }
 
-    function calculate() {
+    function ulate() {
       if (currentFormulaInternal === "" || shouldReset) return;
       try {
         // --- 常にドットを表示するように固定 ---
